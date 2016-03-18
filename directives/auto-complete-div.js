@@ -130,6 +130,10 @@
 
   var linkFunc = function(scope, element, attrs) {
     var inputEl, ulEl, containerEl;
+    var blurLockedAt = 0;
+    var isBlurLocked = function() {
+      return (new Date().getTime() - blurLockedAt > 500)
+    };
 
     scope.containerEl = containerEl = element[0];
     scope.inputEl = inputEl = element[0].querySelector('input');
@@ -243,6 +247,7 @@
     };
 
     inputEl.addEventListener('focus', function() {
+      if (!isBlurLocked()) return;
       if (controlEl) {
         !controlEl.disabled && focusInputEl(scope);
       } else {
@@ -250,8 +255,16 @@
       }
     });
 
+    parentEl.addEventListener('mousedown', function() {
+      blurLockedAt = new Date().getTime();
+    });
+
     inputEl.addEventListener('blur', function() {
-      hideAutoselect(scope);
+      if (isBlurLocked()) {
+        hideAutoselect(scope);
+      } else {
+        inputEl.focus();
+      }
     }); // hide list
 
     inputEl.addEventListener('keydown', function(evt) {
@@ -269,6 +282,8 @@
         if(liTag.tagName == 'LI' && liTag.className != "loading"){
           scope.select(liTag);
         }
+      } else {
+        evt.preventDefault();
       }
     });
 
