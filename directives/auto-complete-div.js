@@ -249,6 +249,7 @@
     });
 
     inputEl.addEventListener('blur', function() {
+      scope.inputEl.value = '';
       hideAutoselect(scope);
     }); // hide list
 
